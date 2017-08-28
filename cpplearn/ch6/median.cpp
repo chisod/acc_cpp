@@ -1,10 +1,12 @@
 #include <algorithm>
 #include <stdexcept>
 #include <vector>
+#include <numeric>
 
 using std::domain_error;
 using std::sort;
 using std::vector;
+using std::accumulate;
 
 double median(vector<double> vec)
 {
@@ -19,4 +21,9 @@ double median(vector<double> vec)
 	vec_sz mid = size/2;
 	vec_sz median = size % 2 == 0 ? (vec[mid]+vec[mid-1])/2 : vec[mid];
 	return median;
+}
+
+double average(const vector<double>& v)
+{
+	return accumulate(v.begin(), v.end(), 0.0) / v.size();
 }
