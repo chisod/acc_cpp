@@ -3,11 +3,13 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 using std::vector;
 using std::string;
 using std::cout;
 using std::endl;
+using std::find_if;
 
 bool compare(const PermutedString& x, const PermutedString& y)
 {
@@ -55,6 +57,36 @@ vector<PermutedString> get_permuted_strings(const string& line)
 	return ret;
 }
 
+//split method from ch6
+bool space(char c)
+{
+	return isspace(c);
+}
+
+bool not_space(char c)
+{
+	return !isspace(c);
+}
+
+vector<string> split(const string& str)
+{
+	typedef string::const_iterator iter;
+	vector<string> ret;
+
+	iter i = str.begin();
+	while (i != str.end()) {
+		i = find_if(i, str.end(), not_space);
+
+		iter j = find_if(i, str.end(), space);
+
+		if (i != str.end())
+			ret.push_back(string(i, j));
+		i = j;
+	}
+	return ret;
+}
+
+/*
 vector<string> split(const string& s)
 {
 	vector<string> ret;
@@ -77,4 +109,4 @@ vector<string> split(const string& s)
 
 	return ret;
 }
-
+*/
