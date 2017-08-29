@@ -5,7 +5,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
-#include <list>
+#include <vector>
+
 #include "grade.h"
 #include "Student_info.h"
 
@@ -18,16 +19,17 @@ using std::setprecision;
 using std::sort;
 using std::streamsize;
 using std::string;
-using std::list;
 using std::ifstream;
+using std::vector;
+using std::ios;
 
 int main()
 {
 	ifstream in;
-	list<Student_info> students, failures;
+	vector<Student_info> students, failures;
 	Student_info record;
 	string::size_type maxlen = 0;
-	typedef list<Student_info>::const_iterator student_iterator;
+	typedef vector<Student_info>::const_iterator student_iterator;
 
 	in.open("scores.txt");
 	
@@ -41,7 +43,7 @@ int main()
 		cout << iter->name << " failed!" << endl;
 	}
 	
-	students.sort(compare);
+	sort(students.begin(), students.end(), compare);
 
 	for (student_iterator iter = students.begin(); iter != students.end(); ++iter) {
 		
@@ -57,11 +59,13 @@ int main()
 		cout << endl;
 	}
 
+	in.clear();
+	in.seekg(0, ios::beg);
 	//ch 6 work
 	vector<Student_info> did, didnt;
 	Student_info student;
 
-	while (read(in, record)) {
+	while (read(in, student)) {
 		if (did_all_hw(student))
 			did.push_back(student);
 		else
@@ -78,6 +82,9 @@ int main()
 		return 1;
 	}
 
-	return 0;
+	write_analysis(cout, "median", median_analysis, did, didnt);
+	write_analysis(cout, "average", average_analysis, did, didnt);
+	write_analysis(cout, "median of homework turned in", optimistic_median_analysis, did, didnt);
 
+	return 0;
 }

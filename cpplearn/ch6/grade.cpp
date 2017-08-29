@@ -1,14 +1,21 @@
 #include <stdexcept>
 #include <list>
 #include <vector>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
+
 #include "grade.h"
 #include "median.h"
 #include "Student_info.h"
 
 using std::back_inserter;
 using std::domain_error;
+using std::endl;
 using std::list;
+using std::ostream;
 using std::remove_copy;
+using std::string;
 using std::transform;
 using std::vector;
 
@@ -29,33 +36,44 @@ double grade(const Student_info& s)
 	return grade(s.midterm_grade, s.final_grade, s.homework);
 }
 
-bool failed_grade(const Student_info& s)
-{
-	return grade(s) < 60;
-}
-
 bool did_all_hw(const Student_info& s)
 {
 	return ((find(s.homework.begin(), s.homework.end(), 0)) == s.homework.end());
 }
 
-list<Student_info> extract_fails(list<Student_info>& students)
+bool failing_grade(const Student_info& s)
 {
-	list<Student_info> fail;
-	list<Student_info>::iterator iter = students.begin();
+	return grade(s) < 60;
+}
 
-	while (iter != students.end()) {
-		if (failed_grade(*iter)) {
-			fail.push_back(*iter);
-			iter = students.erase(iter);
-		} else 
-			++iter;
-	}	
+bool passing_grade(const Student_info& s)
+{
+	return !failing_grade(s);
+}
+
+
+/* double-pass solution
+vector<Student_info> extract_fails(vector<Student_info>& students)
+{
+	vector<Student_info> fail;
+	remove_copy_if(students.begin(), students.end(), back_inserter(fail), passing_grade);
+	students.erase(remove_if(students.begin(), students.end(), failing_grade), students.end());
+
+	return fail;
+}
+*/
+
+vector<Student_info> extract_fails(vector<Student_info>& students)
+{
+	vector<Student_info>::iterator iter = stable_partition(students.begin(), students.end(), passing_grade);
+	vector<Student_info> fail(iter, students.end());
+	students.erase(iter, students.end());
+
 	return fail;
 }
 
 //ch6 extras
-double grade_aux(const Student_info& x)
+double grade_aux(const Student_info& s)
 {
 	try {
 		return grade(s);
@@ -98,7 +116,7 @@ double optimistic_median(const Student_info& s)
 		return grade(s.midterm_grade, s.final_grade, median(nonzero));
 }
 
-double optimistic_median_analysis(const vector<Student_info>&)
+double optimistic_median_analysis(const vector<Student_info>& students)
 {
 	vector<double> grades;
 	transform(students.begin(), students.end(), back_inserter(grades), optimistic_median);
